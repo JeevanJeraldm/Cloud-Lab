@@ -1,0 +1,143 @@
+Q6: Configure a Jenkins pipeline to automate the building and deployment of a Dockerized application from GitHub
+
+---
+
+## STEP 1: Start Jenkins Container (Terminal / PowerShell)
+
+docker volume create jenkins-data
+
+docker run -d ^
+--name jenkins ^
+-p 8080:8080 -p 50000:50000 ^
+-v jenkins-data:/var/jenkins_home ^
+-v /var/run/docker.sock:/var/run/docker.sock ^
+jenkins/jenkins:lts
+
+Get admin password:
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+Open browser:
+http://localhost:8080
+
+* Paste password
+* Install suggested plugins
+* Install "Docker Pipeline" plugin
+
+---
+
+## STEP 2: Install Docker in Jenkins (Terminal)
+
+docker exec -u root jenkins bash -c "apt-get update && apt-get install -y docker.io"
+
+---
+
+## STEP 3: Add Jenkinsfile (GitHub Website / VS Code)
+
+Open your GitHub repository
+
+Create a file named:
+Jenkinsfile
+
+Paste:
+
+pipeline {
+agent any
+
+```
+environment {
+    IMAGE_NAME = "myapp"
+    DOCKER_HUB_USER = "jeevanjeraldm"
+}
+
+stages {
+
+    stage('Clone') {
+        steps {
+            git branch: 'main',
+            url: 'https://github.com/JeevanJeraldm/Devops-Lab.git'
+        }
+    }
+
+    stage('Build Image') {
+        steps {
+            sh 'docker build -t $DOCKER_HUB_USER/$IMAGE_NAME:latest .'
+        }
+    }
+
+    stage('Push to Hub') {
+        steps {
+            withCredentials([usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_PASS'
+            )]) {
+                sh '''
+                echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                docker push $DOCKER_HUB_USER/$IMAGE_NAME:latest
+                '''
+            }
+        }
+    }
+
+    stage('Deploy') {
+        steps {
+            sh 'docker run -d -p 5000:5000 $DOCKER_HUB_USER/$IMAGE_NAME:latest'
+        }
+    }
+}
+```
+
+}
+
+---
+
+## STEP 4: Create Jenkins Pipeline (Browser – Jenkins UI)
+
+1. Open http://localhost:8080
+2. Click "New Item"
+3. Enter name → Select "Pipeline" → OK
+
+---
+
+## STEP 5: Connect GitHub Repository (Jenkins UI)
+
+* Go to Pipeline section
+* Select "Pipeline script from SCM"
+* SCM: Git
+* Repository URL: https://github.com/JeevanJeraldm/Devops-Lab.git
+* Branch: main
+
+---
+
+## STEP 6: Add Docker Hub Credentials (Jenkins UI)
+
+1. Go to "Manage Jenkins"
+2. Click "Credentials"
+3. Add Credentials:
+
+   * Username: jeevanjeraldm
+   * Password: Docker Hub password/token
+   * ID: dockerhub-creds
+
+---
+
+## STEP 7: Run Pipeline (Jenkins UI)
+
+Click "Build Now"
+
+---
+
+## STEP 8: Verify Output (Browser)
+
+Open:
+http://localhost:5000
+
+---
+
+## Execution Summary:
+
+* Jenkins started using Docker
+* GitHub repo connected
+* Jenkinsfile executed
+* Docker image built and pushed
+* Container deployed automatically
