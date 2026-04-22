@@ -1,0 +1,112 @@
+# Experiment 1: VPC Networking (Custom Mode VPC)
+
+## Aim
+To design and configure a Custom Mode VPC by creating subnets in:
+- us-central1
+- asia-east1
+
+---
+
+## Step 0: Initial Setup
+1. Open Google Cloud Console
+2. Select the correct Project from the top bar
+3. Ensure you are working in the intended lab project
+
+---
+
+## Step 1: Open VPC Networks
+1. Click Navigation Menu (☰)
+2. Go to:
+   VPC Network → VPC Networks
+
+---
+
+## Step 2: Create Custom VPC
+1. Click "Create VPC Network"
+2. Enter the following details:
+   - Name: custom-vpc
+   - Subnet creation mode: Custom
+3. Leave other settings as default
+
+---
+
+## Step 3: Add Subnet (us-central1)
+1. Click "Add subnet"
+2. Enter:
+   - Name: subnet-us
+   - Region: us-central1
+   - IP range: 10.0.1.0/24
+3. Click "Done"
+
+---
+
+## Step 4: Add Subnet (asia-east1)
+1. Click "Add subnet"
+2. Enter:
+   - Name: subnet-asia
+   - Region: asia-east1
+   - IP range: 10.0.2.0/24
+3. Click "Done"
+
+---
+
+## Step 5: Create VPC
+1. Verify both subnets are added
+2. Click "Create"
+
+---
+
+## Step 6: Verification
+1. Navigate to:
+   VPC Network → VPC Networks
+2. Click on "custom-vpc"
+3. Verify:
+
+   Subnets:
+   - subnet-us     → us-central1 → 10.0.1.0/24
+   - subnet-asia   → asia-east1  → 10.0.2.0/24
+
+   Routing Mode:
+   - Regional
+
+   Ensure:
+   - No IP overlap between subnets
+
+---
+
+## Observations
+- Custom VPC created successfully
+- Two subnets exist in different regions
+- Each subnet has a unique CIDR range
+- VPC is global, subnets are regional
+- Traffic is isolated within the VPC
+
+---
+
+## Result
+Successfully created a Custom Mode VPC (custom-vpc) with:
+- subnet-us → us-central1 → 10.0.1.0/24
+- subnet-asia → asia-east1 → 10.0.2.0/24
+
+This setup enables multi-region networking in Google Cloud.
+
+---
+
+## Common Mistakes
+- Selecting wrong region (e.g., asia-south1 instead of asia-east1)
+- Using overlapping IP ranges
+- Not selecting Custom mode
+- Working in the wrong project
+
+---
+
+## Viva Questions
+- VPC is global or regional?
+  → Global
+
+- Subnet is global or regional?
+  → Regional
+
+- Difference between Auto and Custom VPC?
+  → Auto: Subnets created automatically
+  → Custom: User defines subnets
