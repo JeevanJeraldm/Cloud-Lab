@@ -73,6 +73,28 @@ To design and configure a Custom Mode VPC by creating subnets in:
    - No IP overlap between subnets
 
 ---
+Shell commands:
+# 1. Create the Custom VPC Network
+gcloud compute networks create custom-vpc \
+    --subnet-mode=custom \
+    --bgp-routing-mode=regional
+
+# 2. Add the us-central1 subnet
+gcloud compute networks subnets create subnet-us \
+    --network=custom-vpc \
+    --region=us-central1 \
+    --range=10.0.1.0/24
+
+# 3. Add the asia-east1 subnet
+gcloud compute networks subnets create subnet-asia \
+    --network=custom-vpc \
+    --region=asia-east1 \
+    --range=10.0.2.0/24
+
+# 4. Final Verification
+gcloud compute networks subnets list --filter="network:custom-vpc"
+
+----
 
 ## Observations
 - Custom VPC created successfully
