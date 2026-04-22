@@ -1,0 +1,152 @@
+# Experiment 7: Exploring IAM (Identity and Access Management)
+
+## Aim
+To create or use a test user and assign the Storage Object Viewer role for a specific Cloud Storage bucket.
+
+---
+
+## Step 0: Initial Setup
+1. Open Google Cloud Console
+2. Select the correct Project
+3. Ensure you already have a Cloud Storage bucket created
+
+---
+
+## Step 1: Identify / Create Test User
+1. Use an existing Google account:
+   - Example: testuser@gmail.com
+
+(Note: In lab exams, usually you use another Gmail account as test user)
+
+---
+
+## Step 2: Open Cloud Storage Bucket
+1. Navigate to:
+   Cloud Storage → Buckets
+
+2. Click on your bucket:
+   - Example: my-storage-bucket-123
+
+---
+
+## Step 3: Grant IAM Role (Bucket Level)
+
+1. Go to:
+   Permissions tab
+
+2. Click:
+   "Grant Access"
+
+3. Enter:
+   - New principals: testuser@gmail.com
+   - Role: Storage → Storage Object Viewer
+
+4. Click:
+   "Save"
+
+---
+
+## Step 4: Verify Permission
+
+1. Log out from current account OR open incognito
+2. Login as:
+   testuser@gmail.com
+
+3. Go to:
+   Cloud Storage → Buckets → your bucket
+
+4. Verify:
+   - You can VIEW files
+   - You can LIST objects
+
+---
+
+## Step 5: Test Restriction
+
+1. Try:
+   - Upload a file → ❌ Should FAIL (Permission Denied)
+   - Delete a file → ❌ Should FAIL
+
+2. Try:
+   - View/download files → ✅ Allowed
+
+---
+
+## Observations
+- IAM role successfully assigned to test user
+- User can only view objects (read-only access)
+- Upload and delete operations are restricted
+- Principle of least privilege is enforced
+
+---
+
+## Result
+Successfully assigned Storage Object Viewer role to a test user, allowing read-only access to bucket objects while restricting modification actions.
+
+---
+
+## Common Mistakes
+- Entering wrong email ID
+- Assigning wrong role (e.g., Editor instead of Viewer)
+- Not saving IAM changes
+- Testing with same account instead of test user
+
+---
+
+## Viva Questions
+
+- What is IAM?
+  → Identity and Access Management system for controlling access
+
+- What is a Principal?
+  → User, service account, or group
+
+- What is a Role?
+  → Collection of permissions
+
+- What is Policy?
+  → Binding of principal to role on a resource
+
+- What is Storage Object Viewer?
+  → Read-only access to bucket objects
+
+- What is Principle of Least Privilege?
+  → Give minimum required permissions only
+----
+Shell commands:
+Replace testuser@gmail.com with the actual email you are using and [YOUR_BUCKET_NAME] with your bucket from Experiment 3.
+
+Bash
+# 1. Define Variables
+export BUCKET_NAME="[YOUR_BUCKET_NAME]"
+export USER_EMAIL="testuser@gmail.com"
+
+# 2. Grant the Storage Object Viewer role to the user for this specific bucket
+gcloud storage buckets add-iam-policy-binding gs://$BUCKET_NAME \
+    --member="user:$USER_EMAIL" \
+    --role="roles/storage.objectViewer"
+
+# 3. Verify the policy was applied
+gcloud storage buckets get-iam-policy gs://$BUCKET_NAME \
+    --filter="bindings.members:$USER_EMAIL"
+----
+if wanted
+# 1. SETUP: Create a bucket (Skip if you already have one from Exp 3)
+# Replace [UNIQUE_ID] with your name or a random number
+export BUCKET_NAME="my-iam-test-bucket-[UNIQUE_ID]"
+gcloud storage buckets create gs://$BUCKET_NAME --location=us-central1
+
+# 2. DEFINE THE TEST USER
+# Replace with the email provided by your examiner or a second account
+export USER_EMAIL="testuser@gmail.com"
+
+# 3. APPLY IAM POLICY
+# This binds the user to the 'Storage Object Viewer' role ONLY for this bucket
+gcloud storage buckets add-iam-policy-binding gs://$BUCKET_NAME \
+    --member="user:$USER_EMAIL" \
+    --role="roles/storage.objectViewer"
+
+# 4. VERIFICATION
+# This command pulls the policy to prove the role is assigned
+gcloud storage buckets get-iam-policy gs://$BUCKET_NAME \
+    --filter="bindings.members:$USER_EMAIL"
