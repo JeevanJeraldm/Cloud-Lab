@@ -1,0 +1,119 @@
+# Experiment 3: Cloud Storage Bucket & Lifecycle Management
+
+## Aim
+To create a Cloud Storage bucket, upload objects, and configure a lifecycle rule to automatically change storage class from Standard to Nearline after 30 days.
+
+---
+
+## Step 0: Initial Setup
+1. Open Google Cloud Console
+2. Select the correct Project
+3. Ensure billing is enabled for the project
+
+---
+
+## Step 1: Open Cloud Storage
+1. Click Navigation Menu (☰)
+2. Go to:
+   Cloud Storage → Buckets
+
+---
+
+## Step 2: Create Bucket
+1. Click "Create Bucket"
+2. Enter the following details:
+
+   - Name: my-storage-bucket-123 (must be globally unique)
+   - Region: us-central1
+   - Storage class: Standard
+
+3. Click "Continue" through remaining settings (leave defaults)
+4. Click "Create"
+
+---
+
+## Step 3: Upload Object
+1. Open the created bucket
+2. Click "Upload Files"
+3. Select any file from your system
+4. Click "Open" to upload
+
+---
+
+## Step 4: Configure Lifecycle Rule
+1. Go to "Lifecycle" tab
+2. Click "Add Rule"
+
+3. Set:
+   - Condition:
+     - Age = 30 days
+
+   - Action:
+     - Set storage class → Nearline
+
+4. Click "Create"
+
+---
+
+## Step 5: Verification
+1. Open the bucket
+2. Go to "Lifecycle" tab
+3. Verify rule:
+
+   - Condition: Age = 30 days
+   - Action: Change storage class to Nearline
+
+---
+Shell commands:
+Since bucket names must be globally unique, you should replace [UNIQUE_ID] with a random string or your project ID.
+
+Unified Command Block
+Bash
+# 1. Define Variables
+export BUCKET_NAME="my-storage-bucket-[UNIQUE_ID]"
+export REGION="us-central1"
+
+# 2. Create the Bucket (Standard Class in us-central1)
+gcloud storage buckets create gs://$BUCKET_NAME \
+    --location=$REGION \
+    --default-storage-class=standard
+
+# 3. Create a dummy file and upload it
+echo "Experiment 3 data" > demo-file.txt
+gcloud storage cp demo-file.txt gs://$BUCKET_NAME/
+
+# 4. Create the Lifecycle Configuration file
+cat <<EOF > lifecycle.json
+{
+  "rule": [
+    {
+      "action": {
+        "type": "SetStorageClass",
+        "storageClass": "NEARLINE"
+      },
+      "condition": {
+        "age": 30
+      }
+    }
+  ]
+}
+EOF
+
+# 5. Apply the Lifecycle Rule to the bucket
+gcloud storage buckets update gs://$BUCKET_NAME --lifecycle-file=lifecycle.json
+
+# 6. Verification
+gcloud storage buckets describe gs://$BUCKET_NAME --format="json(lifecycle)"
+
+------
+## Observations
+- Bucket created successfully in us-central1 region
+- Object uploaded into the bucket
+- Lifecycle rule configured for automatic transition
+- Storage class will change after 30 days
+
+---
+
+## Result
+Successfully created a Cloud Storage bucket, uploaded objects, and configured a lifecycle rule to transition data from Standard to Nearline after 30 days, optimizing storage cost.
+
